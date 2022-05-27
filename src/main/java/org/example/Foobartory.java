@@ -4,48 +4,43 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.example.domain.ActivityEnum;
+import org.example.utils.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Hello world!
- */
 public class Foobartory {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(Foobartory.class);
 
-
   public static void main(String[] args) {
-    LOGGER.info("Hello world !");
+    LOGGER.info("Starting the game!");
 
     List<Thread> threads = new ArrayList<>();
 
     var supplyDepot = new SupplyDepot();
-    var  thread1 = new Thread(new Robot(supplyDepot, ActivityEnum.MINING_FOO));
-    var  thread2 = new Thread(new Robot(supplyDepot, ActivityEnum.MINING_BAR));
-    
-    thread1.start();
-    thread2.start();
-    threads.add(thread1);
-    threads.add(thread2);
-    
+    supplyDepot.addRobot(ActivityEnum.MINING_FOO);
+    supplyDepot.addRobot(ActivityEnum.MINING_BAR);
+   
     long start = System.currentTimeMillis();
 
-    while (supplyDepot.getTotalFooBar() < 4) {
-      
-      if (supplyDepot.getTotalFooBar() >= 1 && supplyDepot.getTotalRobot() == 0) {
-        Robot r = new Robot(supplyDepot, ActivityEnum.MINING_BAR);
-        Thread t = new Thread(r);
-        t.start();
-        threads.add(t);
-        supplyDepot.addRobot();
-      }
+    while (supplyDepot.getTotalRobot() < 30) {
+      var robot = supplyDepot.removeRobot();
+      if (robot != null) {
+        var  thread = new Thread(robot);
+        thread.start();
+        threads.add(thread);
 
+        LOGGER.info("Total robot: {}.", supplyDepot.getTotalRobot());
+      }
     }
     supplyDepot.stop();
 
     long stop = System.currentTimeMillis();
+    LOGGER.debug("Waiting for the thread to stop...");
+    threads.forEach(Utils::join);
 
-    LOGGER.info("{} ms.", stop - start);
+    LOGGER.info("You have reach {} robot !", supplyDepot.getTotalRobot());
+    LOGGER.info("Your game time: {} ms.", stop - start);
+    LOGGER.info("End of the game, bye.");
   }
 }
