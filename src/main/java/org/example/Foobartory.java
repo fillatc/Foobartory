@@ -2,7 +2,6 @@ package org.example;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.example.domain.ActivityEnum;
 import org.example.utils.Utils;
 import org.slf4j.Logger;
@@ -20,7 +19,7 @@ public class Foobartory {
     var supplyDepot = new SupplyDepot();
     supplyDepot.addRobot(ActivityEnum.MINING_FOO);
     supplyDepot.addRobot(ActivityEnum.MINING_BAR);
-   
+
     long start = System.currentTimeMillis();
 
     while (supplyDepot.getTotalRobot() < 30) {

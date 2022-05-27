@@ -8,7 +8,6 @@ import static org.example.utils.Constants.MINE_FOO_TIME;
 import static org.example.utils.Constants.SELL_FOO_BAR_TIME;
 import static org.example.utils.Utils.getNextRandom;
 
-
 import java.util.List;
 import java.util.UUID;
 import org.example.domain.ActivityEnum;

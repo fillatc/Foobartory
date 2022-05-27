@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-
 import org.example.domain.ActivityEnum;
 import org.example.domain.Bar;
 import org.example.domain.Foo;
@@ -46,7 +45,7 @@ public class SupplyDepot {
       return fooQueue.poll();
     }
   }
-  
+
   public List<Foo> removeFoo(int nb) {
     synchronized (this) {
       List<Foo> fooList = new ArrayList<>();
