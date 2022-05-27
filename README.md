@@ -29,7 +29,7 @@ The game stops when you reach 30 robots
 To avoid installing an OpenJDK to launch the app you can use [Gitpod](https://www.gitpod.io/)
 Create a free account (you can have 50 hours/month for free)
 
-You can launch the VScode workspace with this URL https://fgitpod.io/#https://github.com/fillatc/Foobartory
+You can launch the VScode workspace with this URL https://gitpod.io/#https://github.com/fillatc/Foobartory
 
 You have now a fully IDE in your browser, and you can now [run the game](#run-the-game)
 
@@ -56,7 +56,7 @@ OpenJDK 64-Bit Server VM Corretto-17.0.2.8.1 (build 17.0.2+8-LTS, mixed mode, sh
 ```
 
 
-# Run to game
+# Run the game
 
 In your terminal at the root path of the project enter the following command:
 ```shell
