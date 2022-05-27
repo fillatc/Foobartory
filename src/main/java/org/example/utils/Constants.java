@@ -9,7 +9,8 @@ public class Constants {
   public static final int SELL_FOO_BAR_TIME = 5000;
   public static final int BUY_ROBOT_TIME = 1000;
   public static final int SWITCHING_ACTIVITY = 5000;
-
+  public static final int SPEED = 100;
+  
   private Constants() {
     //
   }

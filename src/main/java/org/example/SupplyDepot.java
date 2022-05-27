@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.example.domain.ActivityEnum;
 import org.example.domain.Bar;
 import org.example.domain.Foo;
 import org.example.domain.FooBar;
@@ -44,7 +45,7 @@ public class SupplyDepot {
       return fooQueue.poll();
     }
   }
-  
+
   public List<Foo> removeFoo(int nb) {
     synchronized (this) {
       List<Foo> fooList = new ArrayList<>();
@@ -84,10 +85,10 @@ public class SupplyDepot {
     }
   }
 
-  public List<FooBar> removeFooBar() {
+  public List<FooBar> removeFiveFooBar() {
     synchronized (fooBarQueue) {
       List<FooBar> fooBars = new ArrayList<>();
-      for (var cpt = 0; cpt < 5; cpt++) {
+      for (var counter = 0; counter < 5; counter++) {
         fooBars.add(fooBarQueue.poll());
       }
       return fooBars;
@@ -106,9 +107,36 @@ public class SupplyDepot {
     }
   }
 
-  public void addRobot() {
+  public void addRobot(ActivityEnum activityEnum) {
     synchronized (totalRobot) {
       totalRobot.getAndIncrement();
+    }
+    synchronized (robotIdle) {
+      robotIdle.add(new Robot(this, activityEnum));
+    }
+  }
+
+  public Robot removeRobot() {
+    synchronized (robotIdle) {
+      return robotIdle.poll();
+    }
+  }
+
+  public int getTotalMoney() {
+    synchronized (money) {
+      return money.get();
+    }
+  }
+
+  public void addMoney(int price) {
+    synchronized (money) {
+      money.getAndAdd(price);
+    }
+  }
+
+  public int removeMoney(int price) {
+    synchronized (money) {
+     return money.getAndAdd(price * (-1));
     }
   }
 

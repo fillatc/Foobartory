@@ -1,16 +1,20 @@
 package org.example;
 
 import static org.example.utils.Constants.ASSEMBLE_FOO_BAR_TIME;
+import static org.example.utils.Constants.BUY_ROBOT_TIME;
 import static org.example.utils.Constants.MINE_BAR_MAX_TIME;
 import static org.example.utils.Constants.MINE_BAR_MIN_TIME;
 import static org.example.utils.Constants.MINE_FOO_TIME;
+import static org.example.utils.Constants.SELL_FOO_BAR_TIME;
 import static org.example.utils.Utils.getNextRandom;
 
+import java.util.List;
 import java.util.UUID;
 import org.example.domain.ActivityEnum;
 import org.example.domain.Bar;
 import org.example.domain.Foo;
 import org.example.domain.FooBar;
+import org.example.utils.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,59 +35,122 @@ public class Robot implements Runnable {
 
   @Override
   public void run() {
-    try {
-      LOGGER.debug("Start working!");
-      startWorking();
-    } catch (InterruptedException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
+    LOGGER.debug("Start working!");
+    startWorking();
   }
 
-  public void startWorking() throws InterruptedException {
+  private void startWorking() {
     while (supplyDepot.isRunning()) {
-      switch (this.activity) {
-        case MINING_FOO -> mineFoo();
-        case MINING_BAR -> mineBar();
-        case ASSEMBLING_FOO_BAR -> assembleFooBar();
+      ActivityEnum newActivity;
+      if (shouldSwitch()) {
+        LOGGER.debug("Force switch!");
+        newActivity = supplyDepot.getTotalFoo() > supplyDepot.getTotalBar() ? ActivityEnum.MINING_BAR : ActivityEnum.MINING_FOO;
+      } else {
+        newActivity = searchActivity();
       }
+      boolean switchingActivity = this.activity != newActivity;
+      this.activity = newActivity;
 
-      if (this.supplyDepot.getTotalFoo() >= 5 && this.supplyDepot.getTotalBar() >=5) {
-        this.activity = ActivityEnum.ASSEMBLING_FOO_BAR;
+      switch (this.activity) {
+        case MINING_FOO -> mineFoo(switchingActivity);
+        case MINING_BAR -> mineBar(switchingActivity);
+        case ASSEMBLING_FOO_BAR -> assembleFooBar(switchingActivity);
+        case SELLING_FOO_BAR -> sellFooBar(switchingActivity);
+        case BUYING_ROBOT -> buyRobot(switchingActivity);
+        default -> throw new RuntimeException(String.format("Unknown activity %s", this.activity));
       }
     }
   }
 
-  public void mineFoo() throws InterruptedException {
+  private boolean shouldSwitch() {
+    return switch (activity) {
+      case ASSEMBLING_FOO_BAR -> supplyDepot.getTotalFoo() == 0 || supplyDepot.getTotalBar() == 0;
+      case BUYING_ROBOT -> supplyDepot.getTotalMoney() < 3 || supplyDepot.getTotalFoo() < 6;
+      case SELLING_FOO_BAR -> supplyDepot.getTotalFooBar() < 5;
+      default -> false;
+    };
+  }
+
+  private ActivityEnum searchActivity() {
+    if (supplyDepot.getTotalMoney() >= 3 && supplyDepot.getTotalFoo() >= 6) {
+      return ActivityEnum.BUYING_ROBOT;
+    } else if (supplyDepot.getTotalFooBar() >= 5) {
+      return ActivityEnum.SELLING_FOO_BAR;
+    } else if (supplyDepot.getTotalFoo() >= 11 || supplyDepot.getTotalBar() >= 5) {
+      return ActivityEnum.ASSEMBLING_FOO_BAR;
+    }
+    return this.activity;
+  }
+  public void mineFoo(boolean switchingActivity) {
     var foo = new Foo();
     LOGGER.debug("Mining foo: {}.", foo.getSerialNumber());
-    Thread.sleep(MINE_FOO_TIME);
+    Utils.sleep(MINE_FOO_TIME, switchingActivity);
     supplyDepot.addFoo(foo);
   }
 
-  public void mineBar() throws InterruptedException {
+  public void mineBar(boolean switchingActivity) {
     var bar = new Bar();
     int result = getNextRandom(MINE_BAR_MIN_TIME, MINE_BAR_MAX_TIME);
     LOGGER.debug("Mining bar: {}", bar.getSerialNumber());
-    Thread.sleep(result);
+    Utils.sleep(result, switchingActivity);
     supplyDepot.addBar(bar);
   }
 
-  public void assembleFooBar() throws InterruptedException {
+  private void assembleFooBar(boolean switchingActivity) {
     var bar = supplyDepot.removeBar();
     var foo = supplyDepot.removeFoo();
 
-    int result = getNextRandom(0, 100);
-    Thread.sleep(ASSEMBLE_FOO_BAR_TIME);
-    //if (result <= 60) {
-      var fooBar = new FooBar();
-      LOGGER.debug("Assemble fooBar: {}", fooBar.getSerialNumber());
-      supplyDepot.addFooBar(fooBar);
-    /*} else {
-      LOGGER.debug("Assembling failed! bar: {} | foo: {}", bar.getSerialNumber(), foo.getSerialNumber());
-      supplyDepot.addBar(bar);
-    }*/
+    if (foo == null || bar == null) {
+      if (foo != null) {
+        LOGGER.warn("Can't assemble foobar  foo...");
+        supplyDepot.addFoo(foo);
+      } else {
+        LOGGER.warn("Can't assemble foobar  bar...");
+        supplyDepot.addBar(bar);
+      }
+    } else {
+      int result = getNextRandom(0, 100);
+      Utils.sleep(ASSEMBLE_FOO_BAR_TIME, switchingActivity);
+      if (result <= 60) {
+        var fooBar = new FooBar();
+        LOGGER.debug("Assemble fooBar: {}", fooBar.getSerialNumber());
+        supplyDepot.addFooBar(fooBar);
+      } else {
+        LOGGER.debug("Assembling failed! bar: {} | foo: {}", bar.getSerialNumber(), foo.getSerialNumber());
+        supplyDepot.addBar(bar);
+      }
+    }
   }
 
+  private void sellFooBar(boolean switchingActivity) {
+    List<FooBar> fooBars = supplyDepot.removeFiveFooBar();
+    if (fooBars.size() != 5) {
+      LOGGER.warn("Can't sell foobar...");
+      fooBars.forEach(supplyDepot::addFooBar);
+    }
+    if (LOGGER.isDebugEnabled()) {
+      LOGGER.debug("Sell fooBar: {}.", String.join("," + fooBars.stream().map(FooBar::getSerialNumber).toList()));
+    }
+    Utils.sleep(SELL_FOO_BAR_TIME, switchingActivity);
+    supplyDepot.addMoney(5);
+  }
+
+  private void buyRobot(boolean switchingActivity) {
+    List<Foo> fooList = supplyDepot.removeFoo(6);
+    var balance = supplyDepot.removeMoney(1);
+    if (fooList.size() != 6 || balance < 0) {
+      if (fooList.size() != 6) {
+        LOGGER.warn("Can't buy robot...");
+        fooList.forEach(supplyDepot::addFoo);
+      } else {
+        LOGGER.warn("Can't buy robot money...");
+        supplyDepot.addMoney(1);
+      }
+    } else {
+      LOGGER.info("Buying a new robot.");
+      Utils.sleep(BUY_ROBOT_TIME, switchingActivity);
+      supplyDepot.addRobot(ActivityEnum.MINING_BAR);
+    }
+  }
 
 }
