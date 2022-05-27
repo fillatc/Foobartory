@@ -106,4 +106,10 @@ public class SupplyDepot {
     }
   }
 
+  public void addRobot() {
+    synchronized (totalRobot) {
+      totalRobot.getAndIncrement();
+    }
+  }
+
 }

@@ -32,6 +32,7 @@ public class Robot implements Runnable {
   @Override
   public void run() {
     try {
+      LOGGER.debug("Start working!");
       startWorking();
     } catch (InterruptedException e) {
       // TODO Auto-generated catch block

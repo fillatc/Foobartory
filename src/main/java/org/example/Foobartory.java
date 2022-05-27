@@ -31,8 +31,16 @@ public class Foobartory {
     
     long start = System.currentTimeMillis();
 
-    while (supplyDepot.getTotalFooBar() < 2) {
-      //Game loop
+    while (supplyDepot.getTotalFooBar() < 4) {
+      
+      if (supplyDepot.getTotalFooBar() >= 1 && supplyDepot.getTotalRobot() == 0) {
+        Robot r = new Robot(supplyDepot, ActivityEnum.MINING_BAR);
+        Thread t = new Thread(r);
+        t.start();
+        threads.add(t);
+        supplyDepot.addRobot();
+      }
+
     }
     supplyDepot.stop();
 
