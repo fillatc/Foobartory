@@ -14,9 +14,14 @@
   <component name="ProjectType">
     <option name="id" value="jpab" />
   </component>
-  <component name="SwUserDefinedSpecifications">
-    <option name="specTypeByUrl">
-      <map />
+  <component name="UnattendedHostPersistenceState">
+    <option name="openedFilesInfos">
+      <list>
+        <OpenedFileInfo>
+          <option name="caretOffset" value="0" />
+          <option name="fileUrl" value="file://$PROJECT_DIR$/pom.xml" />
+        </OpenedFileInfo>
+      </list>
     </option>
   </component>
 </project>
