@@ -16,6 +16,6 @@ vscode:
 jetbrains:
   intellij:  
     plugins:
-      - com.haulmont.jpab
+      - MavenRunHelper
     prebuilds:
       version: both
