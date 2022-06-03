@@ -10,6 +10,7 @@ import org.example.domain.ActivityEnum;
 import org.example.domain.Bar;
 import org.example.domain.Foo;
 import org.example.domain.FooBar;
+import org.example.utils.RandomSingleton;
 
 public class SupplyDepot {
 
@@ -107,13 +108,9 @@ public class SupplyDepot {
     }
   }
 
-  public void addRobot(ActivityEnum activityEnum) {
-    synchronized (totalRobot) {
-      totalRobot.getAndIncrement();
-    }
-    synchronized (robotIdle) {
-      robotIdle.add(new Robot(this, activityEnum));
-    }
+  public synchronized void addRobot(ActivityEnum activityEnum) {
+    totalRobot.getAndIncrement();
+    robotIdle.add(new Robot(this, RandomSingleton.getInstance(), activityEnum));
   }
 
   public Robot removeRobot() {
@@ -123,21 +120,15 @@ public class SupplyDepot {
   }
 
   public int getTotalMoney() {
-    synchronized (money) {
-      return money.get();
-    }
+    return money.get();
   }
 
   public void addMoney(int price) {
-    synchronized (money) {
-      money.getAndAdd(price);
-    }
+    money.getAndAdd(price);
   }
 
   public int removeMoney(int price) {
-    synchronized (money) {
-     return money.getAndAdd(price * (-1));
-    }
+    return money.getAndAdd(price * (-1));
   }
 
 }

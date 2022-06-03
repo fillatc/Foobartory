@@ -3,14 +3,7 @@ package org.example.utils;
 import static org.example.utils.Constants.SPEED;
 import static org.example.utils.Constants.SWITCHING_ACTIVITY;
 
-import java.util.Random;
-
 public class Utils {
-
-  public static int getNextRandom(int min, int max) {
-    var random = new Random();
-    return  random.nextInt(max - min) + min;
-  }
 
   public static void sleep(int duration, boolean switchingActivity) {
     try {

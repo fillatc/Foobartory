@@ -4,7 +4,7 @@ image:
 tasks:
 - init: ./mvnw clean install -DskipTests
   command: java -jar target/*.jar
-  name: Run PetClinic app
+  name: Run Foobartory
 
 vscode:
   extensions:
@@ -16,6 +16,6 @@ vscode:
 jetbrains:
   intellij:  
     plugins:
-      - com.haulmont.jpab
+      - MavenRunHelper
     prebuilds:
       version: both

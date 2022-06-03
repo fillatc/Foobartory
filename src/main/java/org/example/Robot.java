@@ -6,17 +6,19 @@ import static org.example.utils.Constants.MINE_BAR_MAX_TIME;
 import static org.example.utils.Constants.MINE_BAR_MIN_TIME;
 import static org.example.utils.Constants.MINE_FOO_TIME;
 import static org.example.utils.Constants.SELL_FOO_BAR_TIME;
-import static org.example.utils.Utils.getNextRandom;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import org.example.domain.ActivityEnum;
 import org.example.domain.Bar;
 import org.example.domain.Foo;
 import org.example.domain.FooBar;
+import org.example.utils.RandomSingleton;
 import org.example.utils.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 public class Robot implements Runnable {
 
@@ -25,10 +27,12 @@ public class Robot implements Runnable {
   private final UUID serialNumber;
   private final SupplyDepot supplyDepot;
   private ActivityEnum activity;
+  private RandomSingleton random;
 
-  public Robot(SupplyDepot supplyDepot, ActivityEnum activity) {
+  public Robot(SupplyDepot supplyDepot, RandomSingleton random, ActivityEnum activity) {
     this.serialNumber = UUID.randomUUID();
     this.supplyDepot = supplyDepot;
+    this.random = random;
     this.activity = activity;
     LOGGER.info("New robot, serialNumber: {}", serialNumber);
   }
@@ -40,6 +44,7 @@ public class Robot implements Runnable {
   }
 
   private void startWorking() {
+    MDC.put("robot", this.serialNumber.toString());
     while (supplyDepot.isRunning()) {
       ActivityEnum newActivity;
       if (shouldSwitch()) {
@@ -60,6 +65,7 @@ public class Robot implements Runnable {
         default -> throw new RuntimeException(String.format("Unknown activity %s", this.activity));
       }
     }
+    MDC.clear();
   }
 
   private boolean shouldSwitch() {
@@ -90,26 +96,26 @@ public class Robot implements Runnable {
 
   public void mineBar(boolean switchingActivity) {
     var bar = new Bar();
-    int result = getNextRandom(MINE_BAR_MIN_TIME, MINE_BAR_MAX_TIME);
+    int result = random.getNextRandom(MINE_BAR_MIN_TIME, MINE_BAR_MAX_TIME);
     LOGGER.debug("Mining bar: {}", bar.getSerialNumber());
     Utils.sleep(result, switchingActivity);
     supplyDepot.addBar(bar);
   }
 
-  private void assembleFooBar(boolean switchingActivity) {
+  public void assembleFooBar(boolean switchingActivity) {
     var bar = supplyDepot.removeBar();
     var foo = supplyDepot.removeFoo();
 
     if (foo == null || bar == null) {
       if (foo != null) {
-        LOGGER.warn("Can't assemble foobar  foo...");
+        LOGGER.warn("Can't assemble foobar foo is null!");
         supplyDepot.addFoo(foo);
       } else {
-        LOGGER.warn("Can't assemble foobar  bar...");
+        LOGGER.warn("Can't assemble foobar bar is null!");
         supplyDepot.addBar(bar);
       }
     } else {
-      int result = getNextRandom(0, 100);
+      int result = random.getNextRandom(0, 100);
       Utils.sleep(ASSEMBLE_FOO_BAR_TIME, switchingActivity);
       if (result <= 60) {
         var fooBar = new FooBar();
@@ -122,29 +128,32 @@ public class Robot implements Runnable {
     }
   }
 
-  private void sellFooBar(boolean switchingActivity) {
+  public void sellFooBar(boolean switchingActivity) {
     List<FooBar> fooBars = supplyDepot.removeFiveFooBar();
-    if (fooBars.size() != 5) {
-      LOGGER.warn("Can't sell foobar...");
+    long numberOfFooBar = fooBars.stream().filter(Objects::nonNull).count();
+    if (numberOfFooBar != 5) {
+      LOGGER.warn("Can't sell foobar, you have only {} foobar on the 5 required.", numberOfFooBar);
       fooBars.forEach(supplyDepot::addFooBar);
+    } else {
+      if (LOGGER.isDebugEnabled()) {
+        LOGGER.debug("Sell fooBar: {}.", String.join("," + fooBars.stream().map(FooBar::getSerialNumber).toList()));
+      }
+      Utils.sleep(SELL_FOO_BAR_TIME, switchingActivity);
+      supplyDepot.addMoney(5);
     }
-    if (LOGGER.isDebugEnabled()) {
-      LOGGER.debug("Sell fooBar: {}.", String.join("," + fooBars.stream().map(FooBar::getSerialNumber).toList()));
-    }
-    Utils.sleep(SELL_FOO_BAR_TIME, switchingActivity);
-    supplyDepot.addMoney(5);
   }
 
-  private void buyRobot(boolean switchingActivity) {
+  public void buyRobot(boolean switchingActivity) {
     List<Foo> fooList = supplyDepot.removeFoo(6);
-    var balance = supplyDepot.removeMoney(1);
-    if (fooList.size() != 6 || balance < 0) {
+    int balance = supplyDepot.removeMoney(3);
+    long numberOfFoo = fooList.stream().filter(Objects::nonNull).count();
+    if (numberOfFoo != 6 || balance < 0) {
       if (fooList.size() != 6) {
-        LOGGER.warn("Can't buy robot...");
+        LOGGER.warn("Can't buy robot, you have only {} foo on the 6 required.", numberOfFoo);
         fooList.forEach(supplyDepot::addFoo);
       } else {
-        LOGGER.warn("Can't buy robot money...");
-        supplyDepot.addMoney(1);
+        LOGGER.warn("Can't buy robot, you have only {}€ on the 3€ required.", balance);
+        supplyDepot.addMoney(3);
       }
     } else {
       LOGGER.info("Buying a new robot.");
