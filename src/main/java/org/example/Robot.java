@@ -55,6 +55,7 @@ public class Robot implements Runnable {
       boolean switchingActivity = this.activity != newActivity;
       this.activity = newActivity;
 
+        MDC.put("activity", this.activity.name());
         switch (this.activity) {
         case MINING_FOO -> mineFoo(switchingActivity);
         case MINING_BAR -> mineBar(switchingActivity);
