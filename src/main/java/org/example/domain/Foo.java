@@ -2,14 +2,13 @@ package org.example.domain;
 
 import java.util.UUID;
 
-public class Foo {
-  private final UUID serialNumber;
+public class Foo extends Supply {
 
   public Foo() {
-    this.serialNumber = UUID.randomUUID();
+      super();
   }
 
   public UUID getSerialNumber() {
-    return serialNumber;
+    return this.serialNumber;
   }
 }

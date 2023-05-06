@@ -7,6 +7,8 @@ import org.example.utils.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static org.example.utils.Constants.NUMBER_OF_ROBOT_GOAL;
+
 public class Foobartory {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(Foobartory.class);
@@ -22,10 +24,10 @@ public class Foobartory {
 
     long start = System.currentTimeMillis();
 
-    while (supplyDepot.getTotalRobot() < 30) {
-      var robot = supplyDepot.removeRobot();
-      if (robot != null) {
-        var  thread = new Thread(robot);
+    while (supplyDepot.getTotalRobot() < NUMBER_OF_ROBOT_GOAL) {
+      var robot = supplyDepot.getIdleRobot();
+      if (robot.isPresent()) {
+        var  thread = new Thread(robot.get());
         thread.start();
         threads.add(thread);
 
