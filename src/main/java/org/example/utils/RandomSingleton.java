@@ -6,7 +6,7 @@ public class RandomSingleton {
 
     private static RandomSingleton instance = null;
 
-    private Random random;
+    private final Random random;
 
     public static RandomSingleton getInstance() {
         if (instance == null) {

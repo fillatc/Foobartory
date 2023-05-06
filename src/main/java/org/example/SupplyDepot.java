@@ -1,121 +1,130 @@
 package org.example;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.IntStream;
+
 import org.example.domain.ActivityEnum;
 import org.example.domain.Bar;
 import org.example.domain.Foo;
 import org.example.domain.FooBar;
 import org.example.utils.RandomSingleton;
+import org.javatuples.Pair;
 
 public class SupplyDepot {
 
   private final AtomicBoolean running = new AtomicBoolean(true);
   private final AtomicInteger totalRobot = new AtomicInteger(0);
   private final AtomicInteger money = new AtomicInteger(0);
-  private final Queue<Foo> fooQueue = new LinkedList<>();
-  private final Queue<Bar> barQueue = new LinkedList<>();
-  private final Queue<FooBar> fooBarQueue = new LinkedList<>();
-  private final Queue<Robot> robotIdle = new LinkedList<>();
+  private final LinkedList<Foo> fooList = new LinkedList<>();
+  private final LinkedList<Bar> barList = new LinkedList<>();
+  private final LinkedList<FooBar> fooBarList = new LinkedList<>();
+  private final LinkedList<Robot> robotIdle = new LinkedList<>();
 
 
   public void stop() {
-    synchronized (running) {
-      running.getAndSet(false);
+    synchronized (this) {
+      this.running.getAndSet(false);
     }
   }
 
   public boolean isRunning() {
-    synchronized (running) {
-      return running.get();
+    synchronized (this) {
+      return this.running.get();
     }
   }
 
   public void addFoo(Foo foo) {
-    synchronized (barQueue) {
-      fooQueue.add(foo);
+    synchronized (this) {
+      this.fooList.add(foo);
     }
   }
 
-  public Foo removeFoo() {
-    synchronized (this) {
-      return fooQueue.poll();
-    }
-  }
+  public Optional<Pair<Foo, Bar>> removeFooAndBar() {
+      synchronized (this) {
+          if (fooList.isEmpty() || barList.isEmpty()) {
+              return Optional.empty();
+          }
 
-  public List<Foo> removeFoo(int nb) {
-    synchronized (this) {
-      List<Foo> fooList = new ArrayList<>();
-      for (var cpt = 0; cpt < nb; cpt++) {
-        fooList.add(fooQueue.poll());
+          Foo foo = fooList.remove();
+          Bar bar = barList.remove();
+          return Optional.of(new Pair<>(foo, bar));
       }
-      return fooList;
-    }
   }
 
    public int getTotalFoo() {
-    synchronized (barQueue) {
-      return fooQueue.size();
+    synchronized (this) {
+      return this.fooList.size();
     }
   }
 
   public void addBar(Bar bar) {
-    synchronized (barQueue) {
-      barQueue.add(bar);
+    synchronized (this) {
+      this.barList.add(bar);
     }
   }
 
-  public Bar removeBar() {
-    synchronized (this) {
-      return barQueue.poll();
-    }
-  }
   public int getTotalBar() {
-    synchronized (barQueue) {
-      return barQueue.size();
+    synchronized (barList) {
+      return barList.size();
     }
   }
 
   public void addFooBar(FooBar fooBar) {
-    synchronized (fooBarQueue) {
-      fooBarQueue.add(fooBar);
+    synchronized (this) {
+      this.fooBarList.add(fooBar);
     }
   }
 
-  public List<FooBar> removeFiveFooBar() {
-    synchronized (fooBarQueue) {
-      List<FooBar> fooBars = new ArrayList<>();
-      for (var counter = 0; counter < 5; counter++) {
-        fooBars.add(fooBarQueue.poll());
-      }
-      return fooBars;
+  public List<FooBar> removeFooBar(int numberOfFooBar) {
+    synchronized (this) {
+        if (this.fooBarList.size() >= numberOfFooBar) {
+            List<FooBar> fooBars = new ArrayList<>();
+            IntStream.range(0, numberOfFooBar).forEach(value -> fooBars.add(this.fooBarList.remove(0)));
+            return fooBars;
+        }
+        return Collections.emptyList();
     }
+  }
+
+  public Optional<Pair<List<Foo>, Integer>> removeFooAndMoney(int numberOfFoo, int price) {
+      synchronized (this) {
+          if (this.fooList.size() >= numberOfFoo && this.money.get() >= 3) {
+              List<Foo> foos = new ArrayList<>();
+              IntStream.range(0, numberOfFoo).forEach(value -> foos.add(this.fooList.remove(0)));
+              Integer cash = money.getAndAdd(price * (-1));
+              return Optional.of(new Pair<>(foos, cash));
+          }
+          return Optional.empty();
+      }
   }
 
   public int getTotalFooBar() {
     synchronized (this) {
-      return fooBarQueue.size();
+      return this.fooBarList.size();
     }
   }
 
   public int getTotalRobot() {
-    synchronized (totalRobot) {
-      return totalRobot.get();
+    synchronized (this) {
+      return this.totalRobot.get();
     }
   }
 
-  public synchronized void addRobot(ActivityEnum activityEnum) {
-    totalRobot.getAndIncrement();
-    robotIdle.add(new Robot(this, RandomSingleton.getInstance(), activityEnum));
+  public void addRobot(ActivityEnum activityEnum) {
+      synchronized (this) {
+          totalRobot.getAndIncrement();
+          robotIdle.add(new Robot(this, RandomSingleton.getInstance(), activityEnum));
+      }
   }
 
-  public Robot removeRobot() {
-    synchronized (robotIdle) {
-      return robotIdle.poll();
+  public Optional<Robot> getIdleRobot() {
+    synchronized (this) {
+      if (robotIdle.isEmpty()) {
+          return Optional.empty();
+      }
+      return Optional.of(this.robotIdle.remove(0));
     }
   }
 
@@ -125,10 +134,6 @@ public class SupplyDepot {
 
   public void addMoney(int price) {
     money.getAndAdd(price);
-  }
-
-  public int removeMoney(int price) {
-    return money.getAndAdd(price * (-1));
   }
 
 }

@@ -12,12 +12,12 @@ import org.example.utils.RandomSingleton;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-public class FoobartoryTest {
+class FoobartoryTest {
 
   private final RandomSingleton random = RandomSingleton.getInstance();
 
   @Test
-  public void mineFooTest() {
+  void mineFooTest() {
     //GIVEN
     var supplyDepot = new SupplyDepot();
     var robot = new Robot(supplyDepot, random, ActivityEnum.MINING_FOO);
@@ -30,7 +30,7 @@ public class FoobartoryTest {
   }
 
   @Test
-  public void mineBarTest() {
+  void mineBarTest() {
     //GIVEN
     var supplyDepot = new SupplyDepot();
     var robot = new Robot(supplyDepot, random, ActivityEnum.MINING_BAR);
@@ -43,7 +43,7 @@ public class FoobartoryTest {
   }
 
   @Test
-  public void assembleFooBarTest() {
+  void assembleFooBarTest() {
     // GIVEN
     var supplyDepot = new SupplyDepot();
     supplyDepot.addBar(new Bar());
@@ -63,7 +63,7 @@ public class FoobartoryTest {
   }
 
   @Test
-  public void assembleFooBarTest_with_failed_assembling() {
+  void assembleFooBarTest_with_failed_assembling() {
     // GIVEN
     var supplyDepot = new SupplyDepot();
     supplyDepot.addBar(new Bar());
@@ -83,13 +83,13 @@ public class FoobartoryTest {
   }
 
   @Test
-  public void sellFooBarTest() {
+  void sellFooBarTest() {
     // GIVEN
     var supplyDepot = new SupplyDepot();
     for (var counter = 0; counter < 5; counter ++) {
       supplyDepot.addFooBar(new FooBar());
     }
-    assertTrue(supplyDepot.getTotalFooBar() == 5);
+    assertEquals(5, supplyDepot.getTotalFooBar());
     var robot = new Robot(supplyDepot, random, ActivityEnum.SELLING_FOO_BAR);
 
     // WHEN
@@ -101,13 +101,13 @@ public class FoobartoryTest {
   }
 
   @Test
-  public void buyRobotTest() {
+  void buyRobotTest() {
     // GIVEN
     var supplyDepot = new SupplyDepot();
     for (var counter = 0; counter < 6; counter ++) {
       supplyDepot.addFoo(new Foo());
     }
-    assertTrue(supplyDepot.getTotalFoo() == 6);
+    assertEquals(6, supplyDepot.getTotalFoo());
     supplyDepot.addMoney(3);
     var robot = new Robot(supplyDepot, random, ActivityEnum.BUYING_ROBOT);
 
@@ -118,7 +118,7 @@ public class FoobartoryTest {
      assertEquals(0, supplyDepot.getTotalFoo());
      assertEquals(0, supplyDepot.getTotalMoney());
      assertEquals(1, supplyDepot.getTotalRobot());
-     assertTrue(supplyDepot.removeRobot() != null);
+     assertTrue(supplyDepot.getIdleRobot().isPresent());
   }
 
 }
