@@ -13,7 +13,7 @@ At the beginning, we have 2 robots, each one is able to perform these activities
     - In case of failure, the bar can be reused but the foo is lost.
 - Sell foobar : take 10s to sell up to 5 foobar , we earn €1 per foobar sold.
 - Buying a new robot: take 1s, the robot buy a new robot for €3 and 6 foo
-- Moving to a new activity: occupy the robot for 5 seconds.
+- Moving to a new task: occupy the robot for 5 seconds.
 
 The game stops when you reach 30 robots
 
@@ -68,28 +68,3 @@ Launch the game with this command:
 ```shell
 java -jar ./target/Foobartory-1.0-SNAPSHOT.jar
 ```
-
-
-# Improvement
-
-There are many ways to improve the code, adding tests is a good place to start, within bonus a
-GitHub action to run the tests.
-
-- Use Mapped Diagnostic Context (MDC) to improve the log by adding the robot serialNumber.
-- The algorithm to choose an action is basic and not optimal. The goal is to reduce the maximum the
-  action switching, which has an important cost.
-- Using the args to customize the game:
-  - number of robots at the beginning
-  - number of robots to achieve
-  - changing the time speed
-  - changing the log level
-  - ...
-- Refactoring Robot class and divide the action by example:
-  - Adding those classes Mine / Assemble / Shop
-- There is also a bug, when a robot wants to do an activity, it's possible that the resources are not
-  available anymore, another robot took it. It happens because, between the time a robot is looking 
-at the resources and the time he took it, another robot may remove it.
-  - A solution can be to add a lock when a robot wants to remove resources, but it will create idle time.
-  - Another solution will be to look and remove the resource in the synchronized block of code.
-    and return a null or an empty Optional if the resource is not available.
-- Clean of the dependencies to solve the warning.

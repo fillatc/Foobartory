@@ -1,4 +1,4 @@
-package org.example.domain;
+package org.example.resources;
 
 import java.util.UUID;
 
@@ -8,6 +8,10 @@ public abstract class Supply {
 
     protected Supply() {
         this.serialNumber = UUID.randomUUID();
+    }
+
+    public final UUID getSerialNumber() {
+        return this.serialNumber;
     }
 
 }

@@ -2,7 +2,7 @@ package org.example;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.example.domain.ActivityEnum;
+import org.example.resources.TaskEnum;
 import org.example.utils.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,8 +19,8 @@ public class Foobartory {
     List<Thread> threads = new ArrayList<>();
 
     var supplyDepot = new SupplyDepot();
-    supplyDepot.addRobot(ActivityEnum.MINING_FOO);
-    supplyDepot.addRobot(ActivityEnum.MINING_BAR);
+    supplyDepot.addRobot(TaskEnum.MINING_FOO);
+    supplyDepot.addRobot(TaskEnum.MINING_BAR);
 
     long start = System.currentTimeMillis();
 
