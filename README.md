@@ -13,7 +13,7 @@ At the beginning, we have 2 robots, each one is able to perform these activities
     - In case of failure, the bar can be reused but the foo is lost.
 - Sell foobar : take 10s to sell up to 5 foobar , we earn €1 per foobar sold.
 - Buying a new robot: take 1s, the robot buy a new robot for €3 and 6 foo
-- Moving to a new task: occupy the robot for 5 seconds.
+- Moving to a new activity: occupy the robot for 5 seconds.
 
 The game stops when you reach 30 robots
 
