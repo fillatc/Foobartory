@@ -3,11 +3,11 @@ package org.example.utils;
 import static org.example.utils.Constants.SPEED;
 import static org.example.utils.Constants.SWITCHING_ACTIVITY;
 
-public class Utils {
+public final class Utils {
 
-  public static void sleep(int duration, boolean switchingActivity) {
+  public static void sleep(final int duration, final boolean switchingTask) {
     try {
-      long interval = switchingActivity ?  duration + SWITCHING_ACTIVITY : duration;
+      long interval = switchingTask ?  duration + SWITCHING_ACTIVITY : duration;
       Thread.sleep(interval / SPEED);
     } catch (InterruptedException e) {
       e.printStackTrace();

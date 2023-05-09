@@ -1,6 +1,6 @@
 package org.example.utils;
 
-public class Constants {
+public final class Constants {
 
   // Time constant in milliseconds
   public static final int MINE_FOO_TIME = 1_000;
@@ -15,6 +15,7 @@ public class Constants {
   public static final int NUMBER_OF_ROBOT_GOAL = 30;
   public static final int ROBOT_PRICE = 3;
   public static final int FOO_TO_BUILD_ROBOT = 6;
+  public static final int NUMBER_FOO_BAR_TO_SELL = 5;
 
   /**
    * Constant use to slow or increase the speed of the game.

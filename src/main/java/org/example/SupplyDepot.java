@@ -5,12 +5,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 
-import org.example.domain.ActivityEnum;
-import org.example.domain.Bar;
-import org.example.domain.Foo;
-import org.example.domain.FooBar;
+import org.example.resources.TaskEnum;
+import org.example.resources.Bar;
+import org.example.resources.Foo;
+import org.example.resources.FooBar;
 import org.example.utils.RandomSingleton;
 import org.javatuples.Pair;
+
+import static org.example.utils.Constants.ROBOT_PRICE;
 
 public class SupplyDepot {
 
@@ -35,7 +37,7 @@ public class SupplyDepot {
     }
   }
 
-  public void addFoo(Foo foo) {
+  public void addFoo(final Foo foo) {
     synchronized (this) {
       this.fooList.add(foo);
     }
@@ -59,7 +61,7 @@ public class SupplyDepot {
     }
   }
 
-  public void addBar(Bar bar) {
+  public void addBar(final Bar bar) {
     synchronized (this) {
       this.barList.add(bar);
     }
@@ -71,13 +73,13 @@ public class SupplyDepot {
     }
   }
 
-  public void addFooBar(FooBar fooBar) {
+  public void addFooBar(final FooBar fooBar) {
     synchronized (this) {
       this.fooBarList.add(fooBar);
     }
   }
 
-  public List<FooBar> removeFooBar(int numberOfFooBar) {
+  public List<FooBar> removeFooBar(final int numberOfFooBar) {
     synchronized (this) {
         if (this.fooBarList.size() >= numberOfFooBar) {
             List<FooBar> fooBars = new ArrayList<>();
@@ -88,9 +90,9 @@ public class SupplyDepot {
     }
   }
 
-  public Optional<Pair<List<Foo>, Integer>> removeFooAndMoney(int numberOfFoo, int price) {
+  public Optional<Pair<List<Foo>, Integer>> removeFooAndMoney(final int numberOfFoo, final int price) {
       synchronized (this) {
-          if (this.fooList.size() >= numberOfFoo && this.money.get() >= 3) {
+          if (this.fooList.size() >= numberOfFoo && this.money.get() >= ROBOT_PRICE) {
               List<Foo> foos = new ArrayList<>();
               IntStream.range(0, numberOfFoo).forEach(value -> foos.add(this.fooList.remove(0)));
               Integer cash = money.getAndAdd(price * (-1));
@@ -112,10 +114,10 @@ public class SupplyDepot {
     }
   }
 
-  public void addRobot(ActivityEnum activityEnum) {
+  public void addRobot(final TaskEnum taskEnum) {
       synchronized (this) {
           totalRobot.getAndIncrement();
-          robotIdle.add(new Robot(this, RandomSingleton.getInstance(), activityEnum));
+          robotIdle.add(new Robot(this, RandomSingleton.getInstance(), taskEnum));
       }
   }
 
@@ -132,7 +134,7 @@ public class SupplyDepot {
     return money.get();
   }
 
-  public void addMoney(int price) {
+  public void addMoney(final int price) {
     money.getAndAdd(price);
   }
 

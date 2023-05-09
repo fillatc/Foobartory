@@ -4,10 +4,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
-import org.example.domain.ActivityEnum;
-import org.example.domain.Bar;
-import org.example.domain.Foo;
-import org.example.domain.FooBar;
+import org.example.resources.TaskEnum;
+import org.example.resources.Bar;
+import org.example.resources.Foo;
+import org.example.resources.FooBar;
 import org.example.utils.RandomSingleton;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -20,7 +20,7 @@ class FoobartoryTest {
   void mineFooTest() {
     //GIVEN
     var supplyDepot = new SupplyDepot();
-    var robot = new Robot(supplyDepot, random, ActivityEnum.MINING_FOO);
+    var robot = new Robot(supplyDepot, random, TaskEnum.MINING_FOO);
 
     //WHEN
     robot.mineFoo(false);
@@ -33,7 +33,7 @@ class FoobartoryTest {
   void mineBarTest() {
     //GIVEN
     var supplyDepot = new SupplyDepot();
-    var robot = new Robot(supplyDepot, random, ActivityEnum.MINING_BAR);
+    var robot = new Robot(supplyDepot, random, TaskEnum.MINING_BAR);
 
     //WHEN
     robot.mineBar(false);
@@ -51,7 +51,7 @@ class FoobartoryTest {
     RandomSingleton random = Mockito.mock(RandomSingleton.class);
     when(random.getNextRandom(0, 100)).thenReturn(1);
 
-    var robot = new Robot(supplyDepot, random, ActivityEnum.ASSEMBLING_FOO_BAR);
+    var robot = new Robot(supplyDepot, random, TaskEnum.ASSEMBLING_FOO_BAR);
 
     // WHEN
     robot.assembleFooBar(false);
@@ -71,7 +71,7 @@ class FoobartoryTest {
     RandomSingleton random = Mockito.mock(RandomSingleton.class);
     when(random.getNextRandom(0, 100)).thenReturn(70);
 
-    var robot = new Robot(supplyDepot, random, ActivityEnum.ASSEMBLING_FOO_BAR);
+    var robot = new Robot(supplyDepot, random, TaskEnum.ASSEMBLING_FOO_BAR);
 
     // WHEN
     robot.assembleFooBar(false);
@@ -90,7 +90,7 @@ class FoobartoryTest {
       supplyDepot.addFooBar(new FooBar());
     }
     assertEquals(5, supplyDepot.getTotalFooBar());
-    var robot = new Robot(supplyDepot, random, ActivityEnum.SELLING_FOO_BAR);
+    var robot = new Robot(supplyDepot, random, TaskEnum.SELLING_FOO_BAR);
 
     // WHEN
     robot.sellFooBar(false);
@@ -109,7 +109,7 @@ class FoobartoryTest {
     }
     assertEquals(6, supplyDepot.getTotalFoo());
     supplyDepot.addMoney(3);
-    var robot = new Robot(supplyDepot, random, ActivityEnum.BUYING_ROBOT);
+    var robot = new Robot(supplyDepot, random, TaskEnum.BUYING_ROBOT);
 
      // WHEN
      robot.buyRobot(false);
